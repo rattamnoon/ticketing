@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   db:
@@ -12,40 +12,64 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - ./data-mysql:/var/lib/mysql
-  cache:
-    container_name: cache
+      - db:/var/lib/mysql
+    networks:
+      - ticketing
+
+  redis:
+    container_name: redis
     image: redis
+    restart: always
     ports:
       - 6379:6379
     volumes:
-      - ./redis:/data
+      - redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      retries: 3
+      timeout: 5s
+    networks:
+      - ticketing
+
   api:
-    container_name: ticketing-api
     build:
       context: ./
     image: ticketing-api
+    container_name: ticketing-api
     restart: always
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4000']
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - db
-      - cache
+      - redis
     ports:
       - 4000:4000
     environment:
+      SECRET_KEY: ticketing-secret-key
+      GOD_PASSWORD: ticketing-password
       DB_HOST: db
       DB_PORT: 3306
       DB_USERNAME: root
       DB_PASSWORD: password
       DB_NAME: ticketing
-      REDIS_HOST: cache
+      REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DEFAULT_TTL: 3600
+      REDIS_URL: redis://redis:6379
     links:
       - db
-      - cache
+      - redis
+    networks:
+      - ticketing
+
+networks:
+  ticketing:
 
 volumes:
   db:
     driver: local
-  cache:
+  redis:
     driver: local

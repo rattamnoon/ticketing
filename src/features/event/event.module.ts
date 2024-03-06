@@ -17,13 +17,24 @@ import { EventService } from './event.service';
     forwardRef(() => SeatsModule),
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        ttl: config.get('REDIS_DEFAULT_TTL'),
-        isGlobal: true,
-        store: redisStore as unknown as CacheStore,
-        host: config.get('REDIS_HOST'),
-        port: config.get('REDIS_POST'),
-      }),
+      useFactory: (config: ConfigService) => {
+        if (config.get('NODE_ENV') === 'production') {
+          return {
+            ttl: config.get('REDIS_DEFAULT_TTL'),
+            isGlobal: true,
+            store: redisStore as unknown as CacheStore,
+            url: config.get('REDIS_URL'),
+          };
+        }
+
+        return {
+          ttl: config.get('REDIS_DEFAULT_TTL'),
+          isGlobal: true,
+          store: redisStore as unknown as CacheStore,
+          host: config.get('REDIS_HOST'),
+          port: config.get('REDIS_POST'),
+        };
+      },
       inject: [ConfigService],
     }),
   ],

@@ -21,8 +21,8 @@ $ pnpm seed:run
 ## ENV
 
 ```bash
-SECRET_KEY="ticketing"
-GOD_PASSWORD="ticketing@2024"
+SECRET_KEY=ticketing-secret-key
+GOD_PASSWORD=ticketing-password
 
 DB_HOST=localhost
 DB_PORT=3306
@@ -33,6 +33,7 @@ DB_NAME=ticketing
 REDIS_DEFAULT_TTL=3600
 REDIS_HOST=localhost
 REDIS_PORT='6379'
+REDIS_URL=redis://redisc:6379
 ```
 
 ## Running the app
@@ -175,4 +176,5 @@ query Reservations {
   }
 }
 ```
+
 # ticketing
