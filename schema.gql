@@ -1,0 +1,153 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Seat {
+  id: ID!
+  eventId: String!
+  zone: String
+  row: String!
+  status: SeatStatus!
+}
+
+"""The status of the event"""
+enum SeatStatus {
+  Available
+  Reserved
+}
+
+type Event {
+  id: ID!
+  name: String!
+  description: String
+  date: DateTime
+  totalSeats: Int
+  status: EventStatus!
+  seats: [Seat!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""The status of the event"""
+enum EventStatus {
+  Open
+  Close
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstname: String
+  lastname: String
+  reservations: [Reservation]
+}
+
+type Reservation {
+  id: ID!
+  userId: String!
+  seatId: String!
+  status: ReservationStatus!
+  user: User!
+  seat: Seat!
+}
+
+"""The status of the event"""
+enum ReservationStatus {
+  Booking
+  Confirmed
+  Canceled
+}
+
+type Login {
+  user: User!
+  token: String!
+  tokenExpires: Int!
+}
+
+type Query {
+  me: User!
+  users: [User]
+  user(id: String!): User
+  events: [Event!]!
+  event(id: String!): Event!
+  seats: [Seat!]!
+  seat(id: String!): Seat!
+  reservations: [Reservation!]!
+  reservation(id: String!): Reservation!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateEvent(input: UpdateEventInput!): Event!
+  createEvent(input: CreateEventInput!): Event!
+  removeEvent(id: String!): Event!
+  createSeat(input: CreateSeatInput!): Seat!
+  updateSeat(input: UpdateSeatInput!): Seat!
+  removeSeat(id: String!): Seat!
+  createReservation(input: CreateReservationInput!): Reservation!
+  updateReservation(input: UpdateReservationInput!): Reservation!
+  removeReservation(id: String!): Reservation!
+  login(user: LoginInput!): Login!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstname: String
+  lastname: String
+}
+
+input UpdateEventInput {
+  name: String
+  description: String
+  date: DateTime
+  totalSeats: Int
+  status: EventStatus
+  seats: [UpdateSeatInput!]
+  id: String!
+}
+
+input UpdateSeatInput {
+  eventId: String
+  zone: String
+  row: String
+  seatNumber: Int
+  status: SeatStatus = Available
+  id: ID
+}
+
+input CreateEventInput {
+  name: String!
+  description: String
+  date: DateTime
+  totalSeats: Int!
+  status: EventStatus
+  seats: [UpdateSeatInput!]!
+}
+
+input CreateSeatInput {
+  eventId: String!
+  zone: String
+  row: String!
+  seatNumber: Int!
+  status: SeatStatus! = Available
+}
+
+input CreateReservationInput {
+  status: ReservationStatus! = Booking
+  seatId: String!
+}
+
+input UpdateReservationInput {
+  status: ReservationStatus = Booking
+  seatId: String
+  id: ID!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}

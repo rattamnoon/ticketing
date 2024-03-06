@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'ticketing'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./data-mysql:/var/lib/mysql
+  cache:
+    container_name: cache
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis:/data
+  api:
+    container_name: ticketing-api
+    build:
+      context: ./
+    image: ticketing-api
+    restart: always
+    depends_on:
+      - db
+      - cache
+    ports:
+      - 4000:4000
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      DB_NAME: ticketing
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+      REDIS_DEFAULT_TTL: 3600
+    links:
+      - db
+      - cache
+
+volumes:
+  db:
+    driver: local
+  cache:
+    driver: local
